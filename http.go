@@ -31,11 +31,5 @@ func JSONGet(url string) []byte {
 		panic(err.Error())
 	}
 
-	holmes.Debugln(len(body))
-
 	return body
-
-	// json.Unmarshal(body, &data)
-	// holmes.Debugf("Results: %v\n", data)
-	// return data
 }
