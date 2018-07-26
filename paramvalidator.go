@@ -19,6 +19,7 @@ func DecodeAndValidate(body io.Reader, input interface{}) error {
 		holmes.Errorln(err, input)
 		return err
 	}
+	holmes.Debugf("input: %+v", input)
 	if err = validator.Validate(input); err != nil {
 		holmes.Errorln(err)
 		return err
