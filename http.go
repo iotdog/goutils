@@ -19,13 +19,13 @@ func Jsonify(w http.ResponseWriter, message interface{}) {
 
 // JSONGet 发送Get请求，返回数据为JSON格式
 func JSONGet(url string) []byte {
-	res, err := http.Get(url)
-
+	resp, err := http.Get(url)
 	if err != nil {
 		panic(err.Error())
 	}
+	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
 		panic(err.Error())
