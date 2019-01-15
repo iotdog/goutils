@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"regexp"
 
 	"github.com/leesper/holmes"
 	"gopkg.in/mgo.v2/bson"
@@ -28,11 +29,25 @@ func DecodeAndValidate(body io.Reader, input interface{}) error {
 }
 
 func init() {
-	validator.SetValidationFunc("validprice", validPrice)
-	validator.SetValidationFunc("validpictures", validPictures)
-	validator.SetValidationFunc("validlongitude", validLongitude)
-	validator.SetValidationFunc("validlatitude", validLatitude)
-	validator.SetValidationFunc("validobjectid", validObjectID)
+	validator.SetValidationFunc("phone", validPhone)
+	validator.SetValidationFunc("price", validPrice)
+	validator.SetValidationFunc("pricture", validPicture)
+	validator.SetValidationFunc("longitude", validLongitude)
+	validator.SetValidationFunc("latitude", validLatitude)
+	validator.SetValidationFunc("objectid", validObjectID)
+}
+
+func validPhone(v interface{}, param string) error {
+	val := reflect.ValueOf(v)
+	if val.Kind() != reflect.String {
+		return validator.ErrUnsupported
+	}
+	phone := val.String()
+	isValid := regexp.MustCompile(`^1[3|4|5|6|7|8|9][0-9]{9}$`).MatchString(phone)
+	if !isValid {
+		return errors.New("not a valid phone number")
+	}
+	return nil
 }
 
 func validObjectID(v interface{}, param string) error {
@@ -42,7 +57,7 @@ func validObjectID(v interface{}, param string) error {
 	}
 	objectID := val.String()
 	if !bson.IsObjectIdHex(objectID) {
-		return errors.New("invalid param: not a valid ObjectID")
+		return errors.New("not a valid ObjectID")
 	}
 	return nil
 }
@@ -55,12 +70,12 @@ func validPrice(v interface{}, param string) error {
 	}
 	price := val.Int()
 	if price <= 0 {
-		return errors.New("invalid param: price should be larger than 0")
+		return errors.New("price should be larger than 0")
 	}
 	return nil
 }
 
-func validPictures(v interface{}, param string) error {
+func validPicture(v interface{}, param string) error {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Slice {
 		return validator.ErrUnsupported
@@ -74,7 +89,7 @@ func validPictures(v interface{}, param string) error {
 		size += len(p)
 	}
 	if size >= 10*(1<<20) {
-		return errors.New("invalid param: picture size is more than 10M")
+		return errors.New("picture size is more than 10M")
 	}
 	return nil
 }
@@ -87,7 +102,7 @@ func validLongitude(v interface{}, param string) error {
 	if val.Float() >= -180.0 && val.Float() <= 180.0 {
 		return nil
 	}
-	return fmt.Errorf("invalid param: longitude value %.2f", val.Float())
+	return fmt.Errorf("longitude value %.2f", val.Float())
 }
 
 func validLatitude(v interface{}, param string) error {
@@ -98,5 +113,5 @@ func validLatitude(v interface{}, param string) error {
 	if val.Float() >= -180.0 && val.Float() <= 180.0 {
 		return nil
 	}
-	return fmt.Errorf("invalid param: latitude value %.2f", val.Float())
+	return fmt.Errorf("latitude value %.2f", val.Float())
 }
