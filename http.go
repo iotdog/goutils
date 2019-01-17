@@ -1,6 +1,7 @@
 package goutils
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -18,18 +19,33 @@ func Jsonify(w http.ResponseWriter, message interface{}) {
 }
 
 // JSONGet 发送Get请求，返回数据为JSON格式
-func JSONGet(url string) []byte {
+func JSONGet(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
-		panic(err.Error())
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		panic(err.Error())
+		return nil, err
 	}
 
-	return body
+	return body, nil
+}
+
+// JSONPost 发送Post请求， 返回数据为JSON格式
+func JSONPost(url string, jsonData []byte) ([]byte, error) {
+	resp, err := http.Post(url, "application/json", bytes.NewReader(jsonData))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
 }
