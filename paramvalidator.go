@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"regexp"
 
+	"github.com/iotdog/m2mkey_cloud/models"
 	"github.com/leesper/holmes"
 	"gopkg.in/mgo.v2/bson"
 	validator "gopkg.in/validator.v2"
@@ -30,6 +31,7 @@ func DecodeAndValidate(body io.Reader, input interface{}) error {
 
 func init() {
 	validator.SetValidationFunc("phone", validPhone)
+	validator.SetValidationFunc("email", validEmail)
 	validator.SetValidationFunc("price", validPrice)
 	validator.SetValidationFunc("pricture", validPicture)
 	validator.SetValidationFunc("longitude", validLongitude)
@@ -46,6 +48,19 @@ func validPhone(v interface{}, param string) error {
 	isValid := regexp.MustCompile(`^1[3|4|5|6|7|8|9][0-9]{9}$`).MatchString(phone)
 	if !isValid {
 		return errors.New("not a valid phone number")
+	}
+	return nil
+}
+
+func validEmail(v interface{}, param string) error {
+	val := reflect.ValueOf(v)
+	if val.Kind() != reflect.String {
+		return validator.ErrUnsupported
+	}
+	addr := val.String()
+	isValid := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`).MatchString(addr)
+	if !isValid {
+		return errors.New(models.GetMessageByCode(models.CodeInvalidEmail, "zh"))
 	}
 	return nil
 }
