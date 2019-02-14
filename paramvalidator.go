@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"regexp"
 
-	"github.com/iotdog/m2mkey_cloud/models"
 	"github.com/leesper/holmes"
 	"gopkg.in/mgo.v2/bson"
 	validator "gopkg.in/validator.v2"
@@ -60,7 +59,7 @@ func validEmail(v interface{}, param string) error {
 	addr := val.String()
 	isValid := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`).MatchString(addr)
 	if !isValid {
-		return errors.New(models.GetMessageByCode(models.CodeInvalidEmail, "zh"))
+		return errors.New("not a valid email address")
 	}
 	return nil
 }
