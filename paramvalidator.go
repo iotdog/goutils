@@ -36,6 +36,7 @@ func init() {
 	validator.SetValidationFunc("longitude", validLongitude)
 	validator.SetValidationFunc("latitude", validLatitude)
 	validator.SetValidationFunc("objectid", validObjectID)
+	validator.SetValidationFunc("idcardcnm", validIDCardChinaMainland)
 }
 
 func validPhone(v interface{}, param string) error {
@@ -128,4 +129,17 @@ func validLatitude(v interface{}, param string) error {
 		return nil
 	}
 	return fmt.Errorf("latitude value %.2f", val.Float())
+}
+
+func validIDCardChinaMainland(v interface{}, param string) error {
+	val := reflect.ValueOf(v)
+	if val.Kind() != reflect.String {
+		return validator.ErrUnsupported
+	}
+	cardNo := val.String()
+	isValid := regexp.MustCompile(`^[1-9]\d{7}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}$|^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{3}([0-9]|X)$`).MatchString(cardNo)
+	if !isValid {
+		return errors.New("invalid card number")
+	}
+	return nil
 }
